@@ -86,13 +86,24 @@ const box_manager = (x, y, z) => {
     x, y, z,
     three: make_box_at(x, y, z),
     lifetime: Math.random() * 1000,
+
+    // this is the tick function, it will run every frame
+    // see it being called in the animate function
     tick: function() {
+
+      // reduce lifetime
       this.lifetime -= 1;
+
+      // if roll of die is greater than 0.99 and the grid is not full, add a new box
       if (Math.random() > 0.99 && !grid.full()) {
         const b = box_manager(...offset_position(this.x, this.y))
+
+        // need to add to the scene and the grid array
         put(b.three)
         grid.grid.push(b)
       }
+
+      // if lifetime is less than 0, dispose of the object
       this.lifetime < 0 ? dispose(this.three.id) : null
     }
   };
@@ -131,6 +142,7 @@ const init_camera = () => {
     10000,
   );
 };
+
 const init = () => {
   scene = new THREE.Scene();
 

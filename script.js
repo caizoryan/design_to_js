@@ -1,4 +1,4 @@
-import { button, div, eff, render, sig, monke_slider as slider } from "./solid_monke/solid_monke.js"
+import { $, button, div, eff, render, sig, monke_slider as slider, p } from "./solid_monke/solid_monke.js"
 import * as THREE from "three";
 
 const width = window.innerWidth;
@@ -91,7 +91,7 @@ const init = () => {
   scene = new THREE.Scene();
 
   // setup renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   // lights
@@ -123,21 +123,25 @@ const animate = () => {
 init();
 animate();
 
+
+
 // UI stuff
+//
+
+const slide = (val, name, [min, max] = [-5000, 5000]) => div({ class: "slide" }, p(name, val.is), slider(val, [min, max]))
+
 const UI = () => {
   return div(
     { class: "ui" },
-    div(x.is, slider(x, [-5000, 5000])),
-    slider(y, [-5000, 5000]),
-    slider(z, [-5000, 5000]),
+    slide(x, "x: "),
+    slide(y, "y: "),
+    slide(z, "z: "),
 
-    div(size.is, slider(size, [100, 5000])),
-    slider(aspect, [0.1, 10]),
-
+    slide(size, "size: ", [100, 5000]),
   )
 }
 
-render(UI, document.body)
+render(UI, $("#ui"))
 
 
 eff(() => {
@@ -154,3 +158,7 @@ eff(() => {
   camera.position.z = z.is();
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 })
+
+
+let pastel = () => div({ class: "pastel" }, "Hello World")
+render(pastel, $("#pastel"));

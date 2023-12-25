@@ -22,6 +22,19 @@
       padding: 0;
     }
 
+    body {
+      background-color: #000;
+    }
+
+    .slide {
+      display: flex;
+    }
+
+    .slide :first-child {
+      width: 100px;
+    }
+
+
     .ui {
       position: absolute;
       top: 20px;
@@ -40,10 +53,27 @@
       opacity: 1;
       left: 20px;
     }
+
+    .pastel {
+      position: fixed;
+      top: 0px;
+      left: 300px;
+      z-index: -1;
+      width: 500px;
+      height: 100vh;
+      display: flex;
+      color: white;
+      font-size: 150px;
+      font-family: 'Times New Roman', Times, serif;
+      font-style: italic;
+    }
   </style>
 </head>
 
-<body></body>
+<body>
+  <div id="pastel"></div>
+  <div id="ui"></div>
+</body>
 
 <script type="module" src="script.js"></script>
 

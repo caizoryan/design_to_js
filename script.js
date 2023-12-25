@@ -4,6 +4,10 @@ import { $, button, div, eff, render, sig, monke_slider as slider, p } from "./s
 import * as THREE from "three";
 
 // variables
+let scene, renderer, camera, grid, light;
+
+
+
 const width = window.innerWidth;
 const height = window.innerHeight;
 
@@ -22,6 +26,8 @@ const height = window.innerHeight;
 const aspect = sig(width / height);
 const zoom = sig(1094);
 const max_amt = 300;
+const size_max = 200
+const size_min = 50
 
 // const x = sig(-10) const y = sig(-10)
 
@@ -29,7 +35,6 @@ const x = sig(1500)
 const y = sig(900)
 const z = sig(3000)
 
-let scene, renderer, camera, grid;
 
 // ----------------
 // helpers or utils
@@ -127,16 +132,19 @@ const make_grid_position = (row, col) => {
 /** will take a position and return a box at that position
  * @returns {object} The box object. */
 const make_box_at = (x, y, z) => {
-  let s = Math.random() * 100 + 50
-  const geometry = new THREE.BoxGeometry(s, s, s);
-  const mat =
-    new THREE.MeshStandardMaterial(
-      {
-        color: 0xeeeeee,
-        // roughness: 0.5,
-        shininess: 200,
-      });
+  let s = random(size_min, size_max)
+  // const geometry = random(0, 1) > .5 ? new THREE.BoxGeometry(s, s, s) : new THREE.SphereGeometry(s /4, 32, 32);
+  const geometry = new THREE.SphereGeometry(s / 1.7, 32, 32);
+  // const geometry = new THREE.BoxGeometry(s, s, s)
+
+  const mat = new THREE.MeshStandardMaterial(
+    {
+      color: 0xdddddd,
+      shininess: 200,
+    });
   const mesh = new THREE.Mesh(geometry, mat);
+
+  mesh.receiveShadow = true;
   mesh.position.set(x, y, z);
 
   return mesh
@@ -157,16 +165,33 @@ const init = () => {
   scene = new THREE.Scene();
 
   // setup renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer = new THREE.WebGLRenderer({
+    antialias: true
+    // , alpha: true
+  });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   // lights
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-  directionalLight.position.set(0, 50, 100);
-  put(directionalLight);
+  light = new THREE.DirectionalLight(0xffffff, 5);
+  light.position.set(900, 5000, 1000);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 1);
+  put(light);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 3);
   put(ambient);
+
+
+  // const planeGeometry = new THREE.PlaneGeometry(2000, 2000, 32, 32);
+  // const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
+  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  // // plane.position.set(0, 0, -1000);
+  // plane.rotation.x = -Math.PI / 2;
+  // plane.receiveShadow = true;
+  // put(plane);
+  // const helper = new THREE.CameraHelper(light.shadow.camera);
+  // put(helper);
 
   // camera
   init_camera();
@@ -184,6 +209,11 @@ const animate = () => {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   grid.grid.forEach(b => b.tick())
+
+  // light.position.x = x.is();
+  // light.position.y = x.is();
+  // light.lookAt(new THREE.Vector3(0, 0, 0));
+  // light.position.x = random(-1000, 1000)
 };
 
 
@@ -227,6 +257,7 @@ eff(() => {
   camera.top = zoom.is() / 2
   camera.bottom = zoom.is() / -2
   camera.updateProjectionMatrix()
+
 })
 
 

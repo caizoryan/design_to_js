@@ -70,6 +70,13 @@
       animation: blink 5s infinite;
     }
 
+    .test-img {
+      position: fixed;
+      top: 0;
+      left: 50vw;
+      height: 100vh;
+    }
+
     input[type="range"] {
       display: block;
       -webkit-appearance: none;
@@ -116,6 +123,7 @@
 </head>
 
 <body>
+  <img class="test-img" src="./test.png" />
   <div id="three"></div>
   <div class="pastel">The three js background is transparent, this is in html&mdash;we can also use blendmodes to add
     texture</div>

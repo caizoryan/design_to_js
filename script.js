@@ -172,7 +172,8 @@ const init = () => {
   init_camera();
 
   // action
-  document.body.appendChild(renderer.domElement);
+  $("#three").appendChild(renderer.domElement);
+  renderer.domElement.style.mixBlendMode = "difference";
   put(make_box_at(0, 0, 0));
 
   grid = make_grid(10, 10)

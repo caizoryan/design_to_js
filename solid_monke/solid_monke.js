@@ -12,8 +12,7 @@
  * Tools are personal, language is a tool, code is a language.
  * I like writing my code in very personal, often stupid and 
  * esoteric ways. This is something that I have been slowly developing
- * over the past few months. It is not a necesarily a framework or a library
- * but rather an expression of sorts.
+ * over the past few months.
  *
  * Feel free to look around, use whatever you might find is useful, 
  * 

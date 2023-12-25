@@ -20,12 +20,14 @@ const height = window.innerHeight;
  *
  */
 const aspect = sig(width / height);
-const zoom = sig(3000);
+const zoom = sig(1094);
 const max_amt = 300;
 
-const x = sig(200)
-const y = sig(-100)
-const z = sig(700)
+// const x = sig(-10) const y = sig(-10)
+
+const x = sig(1500)
+const y = sig(900)
+const z = sig(3000)
 
 let scene, renderer, camera, grid;
 
@@ -94,6 +96,8 @@ const box_manager = (x, y, z) => {
       // reduce lifetime
       this.lifetime -= 1;
 
+      // this.three.material.color.setRGB(this.lifetime / 1000, this.lifetime / 1000, this.lifetime / 1000)
+
       // if roll of die is greater than 0.99 and the grid is not full, add a new box
       if (Math.random() > 0.99 && !grid.full()) {
         const b = box_manager(...offset_position(this.x, this.y))
@@ -125,7 +129,13 @@ const make_grid_position = (row, col) => {
 const make_box_at = (x, y, z) => {
   let s = Math.random() * 100 + 50
   const geometry = new THREE.BoxGeometry(s, s, s);
-  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const mat =
+    new THREE.MeshStandardMaterial(
+      {
+        color: 0xeeeeee,
+        // roughness: 0.5,
+        shininess: 200,
+      });
   const mesh = new THREE.Mesh(geometry, mat);
   mesh.position.set(x, y, z);
 
@@ -151,8 +161,8 @@ const init = () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   // lights
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 20);
-  directionalLight.position.set(0, 0, 100);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+  directionalLight.position.set(0, 50, 100);
   put(directionalLight);
 
   const ambient = new THREE.AmbientLight(0xffffff, 1);

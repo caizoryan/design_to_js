@@ -198,7 +198,7 @@ const init = () => {
 
   // action
   $("#three").appendChild(renderer.domElement);
-  renderer.domElement.style.mixBlendMode = "difference";
+  renderer.domElement.style.mixBlendMode = "multiply";
   put(make_box_at(0, 0, 0));
 
   grid = make_grid(10, 10)

@@ -1,43 +1,86 @@
+// sorry i just like arrow functions and snake case
+
 import { $, button, div, eff, render, sig, monke_slider as slider, p } from "./solid_monke/solid_monke.js"
 import * as THREE from "three";
 
+// variables
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+/*
+ * The sig function (short for signal) is a reactive variable
+ * - To get the value of a sig, call sig.is()
+ * - To set the value of a sig, call sig.set(new_value)
+ *
+ * ps: when using it in the div function, we dont call the function, 
+ * just pass the reference, I'll add a comment downstairs to make it clear
+ *
+ * I'm using it for all the places where we need to update the value of a variable
+ * in the ui, its just easier... 
+ *
+ */
 const aspect = sig(width / height);
-const size = sig(3000);
+const zoom = sig(3000);
 const max_amt = 300;
 
 const x = sig(200)
 const y = sig(-100)
 const z = sig(700)
-const zoom = sig(1)
 
-let scene, renderer, camera, g;
+let scene, renderer, camera, grid;
 
+// ----------------
 // helpers or utils
+// ----------------
+
+/** will take an object and add it to the scene */
 const put = obj => scene.add(obj);
+
+/** will take a number and return an array of that length filled with 0s
+ * @returns {array} The array of 0s. */
 const list = num => new Array(num).fill(0);
+
+/** will take a min and max and return a random number between them
+ * @returns {number} The random number between min and max. */
 const random = (min, max) => Math.random() * (max - min) + min;
 
+/** will take a position and return a new position with a random offset, default is -400 and 400
+ * @returns {array} The new position with the offset. */
 const offset_position = (x, y, z = 0, [min, max] = [-400, 400]) => [x + random(min, max), y + random(min, max), z + random(min, max)];
 
+/** will take an id and remove the object with that id from the scene */
 const remove_from_scene = id => scene.remove(scene.getObjectById(id))
 
-const remove_from_grid = id => g.grid = g.grid.filter(b => b.three.id !== id)
+/** will take an id and remove the object with that id from the grid */
+const remove_from_grid = id => grid.grid = grid.grid.filter(b => b.three.id !== id)
 
+/** will take an id and remove the object with that id from the scene and the grid */
 const dispose = id => {
   remove_from_grid(id)
   remove_from_scene(id)
 }
 
-const grid = (rows, cols) => {
+// ----------------
+// Constructors of various things
+// ----------------
+//
+//
+
+/** will take a number and return a grid of that size, fills it with box_manager objects, inside a flattened grid
+ * @returns {object} The grid object. */
+const make_grid = (rows, cols) => {
   let grid = {};
   grid.grid = list(rows).map((_, r) => list(cols).map((_, c) => box_manager(...make_grid_position(r, c)))).flat();
-  grid.full = () => g.grid.length >= max_amt
+  grid.full = () => grid.grid.length >= max_amt
   return grid
 };
 
+/** 
+ * This is where we can add interesting things, right now it just has a lifetime
+ * - We can make it change color based on lifetime
+ * - Make it animate rotation, size, etc
+ * -> stuff like that
+ * */
 const box_manager = (x, y, z) => {
   return {
     x, y, z,
@@ -45,17 +88,19 @@ const box_manager = (x, y, z) => {
     lifetime: Math.random() * 1000,
     tick: function() {
       this.lifetime -= 1;
-      if (Math.random() > 0.99 && !g.full()) {
+      if (Math.random() > 0.99 && !grid.full()) {
         const b = box_manager(...offset_position(this.x, this.y))
         put(b.three)
-        g.grid.push(b)
+        grid.grid.push(b)
       }
       this.lifetime < 0 ? dispose(this.three.id) : null
     }
   };
 };
 
-
+/** will take a row and col and return a position for that box by multiplying by 200
+ * @returns {array} The position of the box.
+ **/
 const make_grid_position = (row, col) => {
   let x = row * 200
   let y = col * 200
@@ -64,25 +109,24 @@ const make_grid_position = (row, col) => {
 }
 
 
+/** will take a position and return a box at that position
+ * @returns {object} The box object. */
 const make_box_at = (x, y, z) => {
   let s = Math.random() * 100 + 50
   const geometry = new THREE.BoxGeometry(s, s, s);
-  const mat = make_material(0xffffff);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff });
   const mesh = new THREE.Mesh(geometry, mat);
   mesh.position.set(x, y, z);
 
   return mesh
 };
 
-const make_material = color => new THREE.MeshStandardMaterial({ color });
-
-
 const init_camera = () => {
   camera = new THREE.OrthographicCamera(
-    (size.is() * aspect.is()) / -2,
-    (size.is() * aspect.is()) / 2,
-    size.is() / 2,
-    size.is() / -2,
+    (zoom.is() * aspect.is()) / -2,
+    (zoom.is() * aspect.is()) / 2,
+    zoom.is() / 2,
+    zoom.is() / -2,
     1,
     10000,
   );
@@ -109,56 +153,66 @@ const init = () => {
   document.body.appendChild(renderer.domElement);
   put(make_box_at(0, 0, 0));
 
-  g = grid(10, 10)
-  g.grid.forEach(b => put(b.three))
+  grid = make_grid(10, 10)
+  grid.grid.forEach(b => put(b.three))
 
 };
 const animate = () => {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  g.grid.forEach(b => b.tick())
+  grid.grid.forEach(b => b.tick())
 };
 
 
 init();
 animate();
 
-
-
+// ----------------
 // UI stuff
+// ----------------
+// if you see here, the val is a sig(nal) but we dont call it, we just pass it in as val.is,
+// this is a solid.js thing, if its a reference to a function it creates a dependency so whenever 
+// the value changes, it will change it in the dom, hence we dont call it and pass the reference
 //
-
-const slide = (val, name, [min, max] = [-5000, 5000]) => div({ class: "slide" }, p(name, val.is), slider(val, [min, max]))
+// for the slider, we pass the val and not val.is because it also needs to use val.set to set the variable
+// so we pass the top level object so it can access both.
+const slide = (val, name, [min, max] = [-5000, 5000]) => {
+  return div({ class: "slide" }, p(name, val.is), slider(val, [min, max]))
+}
 
 const UI = () => {
   return div(
     { class: "ui" },
     slide(x, "x: "),
     slide(y, "y: "),
-    slide(z, "z: "),
+    slide(z, "z: ", [3000, 5000]),
 
-    slide(size, "size: ", [100, 5000]),
+    slide(zoom, "zoom: ", [100, 5000]),
   )
 }
 
 render(UI, $("#ui"))
 
-
+// ----------------
+// Effects
+// ----------------
+// these are just reactive effects, so whenever the value of the sig changes, it will run the function
+// so we can update the camera values whenever the zoom or aspect changes
 eff(() => {
-  camera.left = (size.is() * aspect.is()) / -2
-  camera.right = (size.is() * aspect.is()) / 2
-  camera.top = size.is() / 2
-  camera.bottom = size.is() / -2
+  camera.left = (zoom.is() * aspect.is()) / -2
+  camera.right = (zoom.is() * aspect.is()) / 2
+  camera.top = zoom.is() / 2
+  camera.bottom = zoom.is() / -2
   camera.updateProjectionMatrix()
 })
 
+
+// same here with position stuff, in theory we could just combine them 
+// into one eff(ect) but this will probably 
+// help with performance stuff, but that too is negligible
 eff(() => {
   camera.position.x = x.is();
   camera.position.y = y.is();
   camera.position.z = z.is();
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 })
-
-
-let pastel = () => div({ class: "pastel" }, "Hello World")
-render(pastel, $("#pastel"));

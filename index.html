@@ -31,7 +31,7 @@
     }
 
     .slide :first-child {
-      width: 100px;
+      width: 200px;
     }
 
 
@@ -59,19 +59,59 @@
       top: 0px;
       left: 300px;
       z-index: -1;
-      width: 500px;
+      width: 600px;
       height: 100vh;
       display: flex;
       color: white;
-      font-size: 150px;
+      font-size: 100px;
       font-family: 'Times New Roman', Times, serif;
       font-style: italic;
+      animation: blink 5s infinite;
+    }
+
+    input[type="range"] {
+      display: block;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: #999;
+      border-radius: 5px;
+      width: 100%;
+      height: 1px;
+      outline: 0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      background-color: #000;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: .3s ease-in-out;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1);
+    }
+
+    @keyframes blink {
+      0% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div id="pastel"></div>
+  <div class="pastel">The three js background is transparent, this is in html</div>
   <div id="ui"></div>
 </body>
 

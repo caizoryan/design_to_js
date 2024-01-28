@@ -4,7 +4,7 @@ import { $, button, div, eff, render, sig, monke_slider as slider, p } from "./s
 import * as THREE from "three";
 
 // variables
-let scene, renderer, camera, grid, light;
+let scene, renderer, camera, grid, light, ambient;
 
 
 
@@ -34,6 +34,8 @@ const size_min = 50
 const x = sig(1500)
 const y = sig(900)
 const z = sig(3000)
+
+const ambient_intensity = sig(1)
 
 
 // ----------------
@@ -179,19 +181,10 @@ const init = () => {
 
   put(light);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 3);
+  ambient = new THREE.AmbientLight(0xffffff, 3);
   put(ambient);
 
 
-  // const planeGeometry = new THREE.PlaneGeometry(2000, 2000, 32, 32);
-  // const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
-  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  // // plane.position.set(0, 0, -1000);
-  // plane.rotation.x = -Math.PI / 2;
-  // plane.receiveShadow = true;
-  // put(plane);
-  // const helper = new THREE.CameraHelper(light.shadow.camera);
-  // put(helper);
 
   // camera
   init_camera();
@@ -230,7 +223,7 @@ animate();
 // for the slider, we pass the val and not val.is because it also needs to use val.set to set the variable
 // so we pass the top level object so it can access both.
 const slide = (val, name, [min, max] = [-5000, 5000]) => {
-  return div({ class: "slide" }, p(name, val.is), slider(val, [min, max]))
+  return div({ class: "slide" }, p(name, val.is), slider(val, [min, max], { step: 0.1 }))
 }
 
 const UI = () => {
@@ -241,6 +234,7 @@ const UI = () => {
     slide(z, "z: ", [3000, 5000]),
 
     slide(zoom, "zoom: ", [100, 5000]),
+    slide(ambient_intensity, "ambient: ", [0, 10],),
   )
 }
 
@@ -258,6 +252,7 @@ eff(() => {
   camera.bottom = zoom.is() / -2
   camera.updateProjectionMatrix()
 
+  ambient.intensity = ambient_intensity.is()
 })
 
 

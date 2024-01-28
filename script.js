@@ -202,11 +202,6 @@ const animate = () => {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   grid.grid.forEach(b => b.tick())
-
-  // light.position.x = x.is();
-  // light.position.y = x.is();
-  // light.lookAt(new THREE.Vector3(0, 0, 0));
-  // light.position.x = random(-1000, 1000)
 };
 
 
